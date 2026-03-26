@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Page Manager",
+  "version": "0.1.0",
+  "description": "Chrome extension with React + TypeScript + Vite.",
+  "permissions": ["storage", "bookmarks", "tabs"],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  }
+}

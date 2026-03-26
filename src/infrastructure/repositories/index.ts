@@ -1,0 +1,2 @@
+// Infrastructure repositories placeholder
+export {};
