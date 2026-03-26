@@ -5,6 +5,10 @@ export type RawBookmarkNode = {
   parentTitle?: string;
 };
 
+export interface BookmarksApiAdapter {
+  getAllBrowserBookmarks(): Promise<RawBookmarkNode[]>;
+}
+
 const flattenBookmarkNodes = (
   nodes: chrome.bookmarks.BookmarkTreeNode[],
   parentTitle?: string,
@@ -42,4 +46,8 @@ export const getAllBrowserBookmarks = async (): Promise<RawBookmarkNode[]> => {
       resolve(flattenBookmarkNodes(nodes));
     });
   });
+};
+
+export const bookmarksApiAdapter: BookmarksApiAdapter = {
+  getAllBrowserBookmarks,
 };
