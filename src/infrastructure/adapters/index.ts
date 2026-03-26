@@ -1,2 +1,1 @@
-// Infrastructure adapters placeholder
-export {};
+export * from './StorageAdapter';

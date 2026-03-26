@@ -1,2 +1,1 @@
-// Infrastructure repositories placeholder
-export {};
+export * from './AppStateRepository';
