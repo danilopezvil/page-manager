@@ -1,2 +1,1 @@
-// Domain services placeholder
-export {};
+export * from './CanonicalUrlService';
