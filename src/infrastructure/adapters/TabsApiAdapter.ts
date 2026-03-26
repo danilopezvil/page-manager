@@ -1,3 +1,11 @@
+export interface TabsApiAdapter {
+  openUrl(url: string): Promise<void>;
+  getCurrentTabInfo(): Promise<{
+    url: string;
+    title: string;
+  } | null>;
+}
+
 export const openUrl = async (url: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     chrome.tabs.create({ url }, () => {
@@ -34,4 +42,9 @@ export const getCurrentTabInfo = async (): Promise<{
       });
     });
   });
+};
+
+export const tabsApiAdapter: TabsApiAdapter = {
+  openUrl,
+  getCurrentTabInfo,
 };
