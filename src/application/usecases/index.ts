@@ -4,3 +4,5 @@ export * from './MarkAsReadUseCase';
 export * from './SaveRecentUseCase';
 export * from './ExportBackupUseCase';
 export * from './ImportBackupUseCase';
+
+export * from './ToggleFavoriteUseCase';
