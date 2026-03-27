@@ -72,66 +72,37 @@ export function NewTabPage(): JSX.Element {
   );
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <div className="page-shell">Cargando...</div>;
   }
 
   return (
-    <main>
-      <Header
-        pendingCount={pendingItems.length}
-        onSearch={setSearch}
-        onAdd={() => undefined}
-        onImport={() => {
-          void importBookmarks();
-        }}
-      />
-
-      <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-
-      <BookmarkList
-        title="Pendientes"
-        items={pendingItems}
-        onOpen={(id) => {
-          void openBookmark(id);
-        }}
-        onMarkRead={(id) => {
-          void markAsRead(id);
-        }}
-        onToggleFavorite={(id) => {
-          void toggleFavorite(id);
-        }}
-      />
-
-      {(recents.length > 0 || activeFilter === 'recents') && (
-        <RecentList
-          items={recents}
-          onOpen={() => undefined}
-          onSave={(id) => {
-            void saveRecent(id);
+    <main className="page-shell">
+      <div className="editor-grid">
+        <Header
+          pendingCount={pendingItems.length}
+          onSearch={setSearch}
+          onAdd={() => undefined}
+          onImport={() => {
+            void importBookmarks();
           }}
-          onDismiss={() => undefined}
         />
-      )}
 
-      <BookmarkList
-        title="Favoritos"
-        items={favoriteItems}
-        onOpen={(id) => {
-          void openBookmark(id);
-        }}
-        onMarkRead={(id) => {
-          void markAsRead(id);
-        }}
-        onToggleFavorite={(id) => {
-          void toggleFavorite(id);
-        }}
-      />
+        <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
-      {sections.map((section) => (
+        {(recents.length > 0 || activeFilter === 'recents') && (
+          <RecentList
+            items={recents}
+            onOpen={() => undefined}
+            onSave={(id) => {
+              void saveRecent(id);
+            }}
+            onDismiss={() => undefined}
+          />
+        )}
+
         <BookmarkList
-          key={section.id}
-          title={section.name}
-          items={filteredBookmarks.filter((bookmark) => bookmark.sectionId === section.id)}
+          title="Pendientes"
+          items={pendingItems}
           onOpen={(id) => {
             void openBookmark(id);
           }}
@@ -142,17 +113,48 @@ export function NewTabPage(): JSX.Element {
             void toggleFavorite(id);
           }}
         />
-      ))}
 
-      <Footer
-        onExport={() => {
-          void exportBackup();
-        }}
-        onImport={() => {
-          void importBookmarks();
-        }}
-        onSettings={() => undefined}
-      />
+        <BookmarkList
+          title="Favoritos"
+          items={favoriteItems}
+          onOpen={(id) => {
+            void openBookmark(id);
+          }}
+          onMarkRead={(id) => {
+            void markAsRead(id);
+          }}
+          onToggleFavorite={(id) => {
+            void toggleFavorite(id);
+          }}
+        />
+
+        {sections.map((section) => (
+          <BookmarkList
+            key={section.id}
+            title={section.name}
+            items={filteredBookmarks.filter((bookmark) => bookmark.sectionId === section.id)}
+            onOpen={(id) => {
+              void openBookmark(id);
+            }}
+            onMarkRead={(id) => {
+              void markAsRead(id);
+            }}
+            onToggleFavorite={(id) => {
+              void toggleFavorite(id);
+            }}
+          />
+        ))}
+
+        <Footer
+          onExport={() => {
+            void exportBackup();
+          }}
+          onImport={() => {
+            void importBookmarks();
+          }}
+          onSettings={() => undefined}
+        />
+      </div>
     </main>
   );
 }

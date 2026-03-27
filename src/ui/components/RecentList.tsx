@@ -12,26 +12,23 @@ export function RecentList({ items, onOpen, onSave, onDismiss }: RecentListProps
   return (
     <section className="recent-list">
       <header className="recent-list__header">
-        <h2 className="recent-list__title">Recientes</h2>
+        <h2 className="recent-list__title">Retomar</h2>
       </header>
 
       <ul className="recent-list__items">
         {items.map((item) => (
           <li className="recent-list__item" key={item.id}>
-            <div className="recent-list__item-content">
+            <button className="recent-list__item-main" type="button" onClick={() => onOpen(item.id)}>
               <h3 className="recent-list__item-title">{item.title}</h3>
               <p className="recent-list__item-domain">{item.domain}</p>
-            </div>
+            </button>
 
             <div className="recent-list__item-actions">
-              <button className="recent-list__action-button" type="button" onClick={() => onOpen(item.id)}>
-                Abrir
-              </button>
               <button className="recent-list__action-button" type="button" onClick={() => onSave(item.id)}>
                 Guardar
               </button>
-              <button className="recent-list__action-button" type="button" onClick={() => onDismiss(item.id)}>
-                Descartar
+              <button className="recent-list__action-button recent-list__action-button--dismiss" type="button" onClick={() => onDismiss(item.id)}>
+                ×
               </button>
             </div>
           </li>
