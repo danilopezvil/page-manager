@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type { BookmarkItem } from '../../domain/models';
-import { BookmarkList, FilterBar, type FilterTab, Footer, Header, RecentList } from '../components';
+import { BookmarkList, BottomNav, FilterBar, type FilterTab, Header, RecentList, Sidebar } from '../components';
 import { useAppState } from '../hooks';
 
 function isToday(timestamp: number): boolean {
@@ -21,12 +21,24 @@ function applyFilter(bookmarks: BookmarkItem[], filter: FilterTab): BookmarkItem
     case 'favorites':
       return bookmarks.filter((bookmark) => bookmark.isFavorite);
     case 'pending':
-      return bookmarks.filter((bookmark) => bookmark.status === 'pending');
-    case 'recents':
-      return bookmarks;
     default:
-      return bookmarks;
+      return bookmarks.filter((bookmark) => bookmark.status === 'pending');
   }
+}
+
+function useIsDesktop(breakpoint: number = 1024): boolean {
+  const [isDesktop, setIsDesktop] = useState<boolean>(() => window.innerWidth >= breakpoint);
+
+  useEffect(() => {
+    const onResize = (): void => {
+      setIsDesktop(window.innerWidth >= breakpoint);
+    };
+
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [breakpoint]);
+
+  return isDesktop;
 }
 
 export function NewTabPage(): JSX.Element {
@@ -35,16 +47,29 @@ export function NewTabPage(): JSX.Element {
     recents,
     sections,
     loading,
-    importBookmarks,
     openBookmark,
     markAsRead,
     toggleFavorite,
     saveRecent,
-    exportBackup,
+    importBookmarks,
   } = useAppState();
 
   const [activeFilter, setActiveFilter] = useState<FilterTab>('pending');
   const [search, setSearch] = useState<string>('');
+  const [selectedSectionId, setSelectedSectionId] = useState<string>('all');
+  const isDesktop = useIsDesktop();
+
+  const sidebarItems = useMemo(
+    () => [
+      { id: 'all', label: 'Todos', count: bookmarks.length },
+      ...sections.map((section) => ({
+        id: section.id,
+        label: section.name,
+        count: bookmarks.filter((bookmark) => bookmark.sectionId === section.id).length,
+      })),
+    ],
+    [bookmarks, sections],
+  );
 
   const pendingItems = useMemo(
     () => bookmarks.filter((bookmark) => bookmark.status === 'pending'),
@@ -52,24 +77,23 @@ export function NewTabPage(): JSX.Element {
   );
 
   const filteredBookmarks = useMemo(() => {
-    const locallyFiltered = applyFilter(bookmarks, activeFilter);
+    const byFilter = applyFilter(bookmarks, activeFilter);
+    const bySection =
+      selectedSectionId === 'all'
+        ? byFilter
+        : byFilter.filter((bookmark) => bookmark.sectionId === selectedSectionId);
     const normalizedSearch = search.trim().toLowerCase();
 
     if (!normalizedSearch) {
-      return locallyFiltered;
+      return bySection;
     }
 
-    return locallyFiltered.filter(
+    return bySection.filter(
       (bookmark) =>
         bookmark.title.toLowerCase().includes(normalizedSearch) ||
         bookmark.domain.toLowerCase().includes(normalizedSearch),
     );
-  }, [activeFilter, bookmarks, search]);
-
-  const favoriteItems = useMemo(
-    () => filteredBookmarks.filter((bookmark) => bookmark.isFavorite),
-    [filteredBookmarks],
-  );
+  }, [activeFilter, bookmarks, search, selectedSectionId]);
 
   if (loading) {
     return <div className="page-shell">Cargando...</div>;
@@ -77,62 +101,28 @@ export function NewTabPage(): JSX.Element {
 
   return (
     <main className="page-shell">
-      <div className="editor-grid">
-        <Header
-          pendingCount={pendingItems.length}
-          onSearch={setSearch}
-          onAdd={() => undefined}
-          onImport={() => {
-            void importBookmarks();
-          }}
-        />
-
-        <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-
-        {(recents.length > 0 || activeFilter === 'recents') && (
-          <RecentList
-            items={recents}
-            onOpen={() => undefined}
-            onSave={(id) => {
-              void saveRecent(id);
-            }}
-            onDismiss={() => undefined}
-          />
+      <div className="app-layout">
+        {isDesktop && (
+          <Sidebar items={sidebarItems} activeId={selectedSectionId} onSelect={setSelectedSectionId} />
         )}
 
-        <BookmarkList
-          title="Pendientes"
-          items={pendingItems}
-          onOpen={(id) => {
-            void openBookmark(id);
-          }}
-          onMarkRead={(id) => {
-            void markAsRead(id);
-          }}
-          onToggleFavorite={(id) => {
-            void toggleFavorite(id);
-          }}
-        />
+        <section className="content-view">
+          <Header pendingCount={pendingItems.length} onSearch={setSearch} />
+          <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} />
 
-        <BookmarkList
-          title="Favoritos"
-          items={favoriteItems}
-          onOpen={(id) => {
-            void openBookmark(id);
-          }}
-          onMarkRead={(id) => {
-            void markAsRead(id);
-          }}
-          onToggleFavorite={(id) => {
-            void toggleFavorite(id);
-          }}
-        />
+          {recents.length > 0 && (
+            <RecentList
+              items={recents.slice(0, 6)}
+              onOpen={() => undefined}
+              onSave={(id) => {
+                void saveRecent(id);
+              }}
+            />
+          )}
 
-        {sections.map((section) => (
           <BookmarkList
-            key={section.id}
-            title={section.name}
-            items={filteredBookmarks.filter((bookmark) => bookmark.sectionId === section.id)}
+            title="Pendientes"
+            items={filteredBookmarks}
             onOpen={(id) => {
               void openBookmark(id);
             }}
@@ -143,18 +133,22 @@ export function NewTabPage(): JSX.Element {
               void toggleFavorite(id);
             }}
           />
-        ))}
 
-        <Footer
-          onExport={() => {
-            void exportBackup();
-          }}
-          onImport={() => {
-            void importBookmarks();
-          }}
-          onSettings={() => undefined}
-        />
+          <div className="content-actions">
+            <button
+              type="button"
+              className="content-actions__button"
+              onClick={() => {
+                void importBookmarks();
+              }}
+            >
+              Importar marcadores
+            </button>
+          </div>
+        </section>
       </div>
+
+      {!isDesktop && <BottomNav />}
     </main>
   );
 }

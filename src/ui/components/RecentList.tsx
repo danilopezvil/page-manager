@@ -5,14 +5,13 @@ export interface RecentListProps {
   items: RecentItem[];
   onOpen: (id: string) => void;
   onSave: (id: string) => void;
-  onDismiss: (id: string) => void;
 }
 
-export function RecentList({ items, onOpen, onSave, onDismiss }: RecentListProps): JSX.Element {
+export function RecentList({ items, onOpen, onSave }: RecentListProps): JSX.Element {
   return (
     <section className="recent-list">
       <header className="recent-list__header">
-        <h2 className="recent-list__title">Retomar</h2>
+        <h2 className="section-title">Retomar</h2>
       </header>
 
       <ul className="recent-list__items">
@@ -23,14 +22,9 @@ export function RecentList({ items, onOpen, onSave, onDismiss }: RecentListProps
               <p className="recent-list__item-domain">{item.domain}</p>
             </button>
 
-            <div className="recent-list__item-actions">
-              <button className="recent-list__action-button" type="button" onClick={() => onSave(item.id)}>
-                Guardar
-              </button>
-              <button className="recent-list__action-button recent-list__action-button--dismiss" type="button" onClick={() => onDismiss(item.id)}>
-                ×
-              </button>
-            </div>
+            <button className="recent-list__save" type="button" onClick={() => onSave(item.id)}>
+              Guardar
+            </button>
           </li>
         ))}
       </ul>
