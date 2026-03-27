@@ -2,11 +2,11 @@ import React from 'react';
 
 export type FilterTab = 'pending' | 'read_today' | 'favorites' | 'recents';
 
-const FILTER_TABS: Array<{ key: FilterTab; label: string }> = [
-  { key: 'pending', label: 'Pendientes' },
-  { key: 'read_today', label: 'Leídos hoy' },
-  { key: 'favorites', label: 'Favoritos' },
-  { key: 'recents', label: 'Recientes' },
+const FILTER_TABS: Array<{ key: FilterTab; label: string; icon: string }> = [
+  { key: 'pending', label: 'Pendientes', icon: '◫' },
+  { key: 'read_today', label: 'Leídos hoy', icon: '◷' },
+  { key: 'favorites', label: 'Favoritos', icon: '★' },
+  { key: 'recents', label: 'Recientes', icon: '↺' },
 ];
 
 export interface FilterBarProps {
@@ -29,7 +29,10 @@ export function FilterBar({ activeFilter, onFilterChange }: FilterBarProps): JSX
                 onClick={() => onFilterChange(tab.key)}
                 aria-pressed={isActive}
               >
-                {tab.label}
+                <span aria-hidden="true" className="filter-bar__icon">
+                  {tab.icon}
+                </span>
+                <span>{tab.label}</span>
               </button>
             </li>
           );
